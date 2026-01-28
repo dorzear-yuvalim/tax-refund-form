@@ -11,22 +11,15 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  IconButton,
   Tooltip,
   useMediaQuery,
   CircularProgress,
   Box,
-  LinearProgress,
-  Link
+  LinearProgress
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import InfoIcon from '@mui/icons-material/Info';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import rtlPlugin from 'stylis-plugin-rtl';
-import { CacheProvider } from '@emotion/react';
-import createCache from '@emotion/cache';
-import { prefixer } from 'stylis';
 import MaritalStatusStep from './steps/MaritalStatusStep';
 import EmploymentStatusStep from './steps/EmploymentStatusStep';
 import IncomeStep from './steps/IncomeStep';
@@ -178,7 +171,6 @@ const useStyles = makeStyles((theme) => ({
 
 const TaxRefundForm = () => {
   const classes = useStyles();
-  const isMobile = useMediaQuery('(max-width:600px)');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [showSelfEmployedDialog, setShowSelfEmployedDialog] = useState(false);
@@ -316,21 +308,6 @@ const TaxRefundForm = () => {
     return { score: newScore, quality, details: scoreDetails };
   };
 
-  const validateStep = () => {
-    const newErrors = {};
-    
-    switch (activeStep) {
-      case 0:
-        if (!formData.maritalStatus) {
-          newErrors.maritalStatus = 'נא לבחור מצב משפחתי';
-        }
-        break;
-      // Add validation for other steps here
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const isStepValid = () => {
     switch (activeStep) {
@@ -360,7 +337,7 @@ const TaxRefundForm = () => {
       default:
         return false;
     }
-  };;
+  };
 
   const checkEligibilityForLowIncome = () => {
     console.log('Checking eligibility with:', {
@@ -418,6 +395,8 @@ const TaxRefundForm = () => {
         case 5:
           errorMessage = 'נא למלא את כל פרטי הקשר';
           break;
+        default:
+          errorMessage = 'שגיאה בשלב';
       }
       
       if (errorMessage) {
@@ -451,24 +430,26 @@ const TaxRefundForm = () => {
   const handleSubmit = async () => {
     if (isSubmitting) return;
 
+    // Set submitting state immediately to prevent double submissions
+    setIsSubmitting(true);
+
     try {
       // Trigger the form submission in PersonalDetailsStep
       setTriggerSubmit(true);
-      
+
       const { personalDetails } = formData;
-      
+
       const requiredFields = ['firstName', 'lastName', 'phone', 'email', 'idNumber', 'birthDate', 'address'];
       const missingFields = requiredFields.filter(field => !personalDetails?.[field]);
-      
+
       if (missingFields.length > 0) {
         setErrors(prev => ({
           ...prev,
           personalDetails: 'אנא מלא את כל פרטי הקשר'
         }));
+        setIsSubmitting(false);
         return;
       }
-
-      setIsSubmitting(true);
       
       // Calculate score
       const scoreResult = calculateScore(formData);
@@ -514,14 +495,17 @@ const TaxRefundForm = () => {
       };
       
       // Send data to Zapier webhook
+      console.log('Sending data to Zapier:', zapierData);
       const zapierResponse = await fetch('https://hooks.zapier.com/hooks/catch/1809069/2839xq9/', {
         method: 'POST',
         mode: 'no-cors',
         body: JSON.stringify(zapierData)
       });
+      console.log('Zapier response:', zapierResponse);
 
       // Since we're using no-cors, we won't get a proper response status
       // Instead, we'll continue if the request doesn't throw an error
+      console.log('Data sent to Zapier successfully');
 
       const emailContent = `
       שם מלא: ${formData.personalDetails?.firstName} ${formData.personalDetails?.lastName}
@@ -642,7 +626,6 @@ const TaxRefundForm = () => {
     }
   };
 
-  const isLastStep = activeStep === steps.length - 1;
 
   return (
     <div className={classes.formContainer}>
