@@ -157,6 +157,11 @@ const AdditionalCriteriaStep = ({ formData, handleChange, error }) => {
               }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                const isChecked = formData.additionalCriteria?.includes(option.value);
+                handleCheckboxChange({ target: { value: option.value, checked: !isChecked } });
+              }}
+              style={{ cursor: 'pointer' }}
             >
               <FormControlLabel
                 className={classes.checkboxLabel}
@@ -165,9 +170,11 @@ const AdditionalCriteriaStep = ({ formData, handleChange, error }) => {
                     checked={formData.additionalCriteria?.includes(option.value) || false}
                     onChange={handleCheckboxChange}
                     value={option.value}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 }
                 label={option.label}
+                onClick={(e) => e.stopPropagation()}
               />
             </motion.div>
           ))}

@@ -322,6 +322,7 @@ const PersonalDetailsStep = ({ onSubmit, data = {}, setFormData, error }) => {
               <FormControlLabel
                 control={
                   <Checkbox
+                    name="pensionClearance"
                     checked={values.pensionClearance || false}
                     onChange={(e) => {
                       handleChange(e);
@@ -351,6 +352,7 @@ const PersonalDetailsStep = ({ onSubmit, data = {}, setFormData, error }) => {
               <FormControlLabel
                 control={
                   <Checkbox
+                    name="marketingApproval"
                     checked={values.marketingApproval || false}
                     onChange={(e) => {
                       handleChange(e);

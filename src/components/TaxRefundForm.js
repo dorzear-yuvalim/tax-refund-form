@@ -172,6 +172,7 @@ const useStyles = makeStyles((theme) => ({
 const TaxRefundForm = () => {
   const classes = useStyles();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const [showSelfEmployedDialog, setShowSelfEmployedDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -428,7 +429,7 @@ const TaxRefundForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return;
+    if (isSubmitting || isSubmitted) return;
 
     // Set submitting state immediately to prevent double submissions
     setIsSubmitting(true);
@@ -507,6 +508,9 @@ const TaxRefundForm = () => {
       // Instead, we'll continue if the request doesn't throw an error
       console.log('Data sent to Zapier successfully');
 
+      // Mark as submitted right after Zapier succeeds to prevent duplicate leads
+      setIsSubmitted(true);
+
       const emailContent = `
       שם מלא: ${formData.personalDetails?.firstName} ${formData.personalDetails?.lastName}
       טלפון: ${formData.personalDetails?.phone}
@@ -565,7 +569,7 @@ const TaxRefundForm = () => {
         '7ggM2WNflMbliCnaP'
       );
   
-      // Show success dialog only after email is sent
+      // Show success dialog
       setShowSuccessDialog(true);
     } catch (error) {
       console.error('Failed to submit form:', error);
@@ -854,7 +858,7 @@ const TaxRefundForm = () => {
             <Button
               variant="contained"
               onClick={handleSubmit}
-              disabled={!isStepValid() || isSubmitting}
+              disabled={!isStepValid() || isSubmitting || isSubmitted}
               sx={{
                 width: '200px',
                 height: '50px',
@@ -866,7 +870,7 @@ const TaxRefundForm = () => {
                 }
               }}
             >
-              {isSubmitting ? 'שולח...' : 'שלח טופס'}
+              {isSubmitted ? 'הטופס נשלח ✓' : isSubmitting ? 'שולח...' : 'שלח טופס'}
             </Button>
           </>
         ) : (
