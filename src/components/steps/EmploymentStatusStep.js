@@ -92,7 +92,7 @@ const EmploymentStatusStep = ({ formData, handleChange, error }) => {
         component="legend"
         id="employment-status-label"
       >
-        האם עבדת כשכיר בין השנים 2020 - 2024? (גם אם עבדת רק בחלק מהשנים)
+        האם עבדת כשכיר בין השנים 2020 - 2025? (גם אם עבדת רק בחלק מהשנים)
       </FormLabel>
       <RadioGroup
         aria-labelledby="employment-status-label"
